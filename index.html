@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <meta name="theme-color" content="#380a1e">
+  <meta name="description" content="A private romantic birthday surprise for Ameera Hidhaya, celebrating 20 wonderful years.">
+  <title>For You, Ameera 💕</title>
+
+  <!-- Google Fonts: Romantic Script, Handwritten & Display Pairing -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Dancing+Script:wght@600;700&family=Great+Vibes&family=Playfair+Display:ital,wght@0,500;0,600;1,400&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- External Confetti Library with local fallback in app.js -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Background Music Audio (Remo Happy Birthday BGM by Anirudh Ravichander) -->
+  <audio id="audio-track1" preload="auto" loop playsinline>
+    <source src="assets/audio/remo_birthday_bgm.m4a" type="audio/mp4">
+    <source src="assets/audio/remo_birthday_bgm.webm" type="audio/webm">
+    <source src="assets/audio/track1.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="audio-track2" preload="auto" loop playsinline>
+    <source src="assets/audio/remo_birthday_bgm.m4a" type="audio/mp4">
+    <source src="assets/audio/remo_birthday_bgm.webm" type="audio/webm">
+    <source src="assets/audio/track2.mp3" type="audio/mpeg">
+  </audio>
+  <!-- Clap SFX: Plays at the moment of cake cutting -->
+  <audio id="audio-clap" preload="auto" src="assets/audio/clap.mp3" playsinline></audio>
+
+  <!-- Persistent Music Control Toggle (Visible across all slides once music starts) -->
+  <aside id="music-control-container" class="music-control-container hidden" aria-label="Audio Controls">
+    <button id="music-toggle-btn" class="music-pill-btn" title="Toggle background music" aria-label="Toggle background music">
+      <span class="music-bars" aria-hidden="true">
+        <span class="bar bar-1"></span>
+        <span class="bar bar-2"></span>
+        <span class="bar bar-3"></span>
+      </span>
+      <span id="music-toggle-label" class="music-label">Music: On</span>
+    </button>
+  </aside>
+
+  <!-- Main Slides Container -->
+  <main class="slides-viewport" id="slides-viewport">
+
+    <!-- =================================================================
+         SLIDE 1: "For You, Ameera" (Landing / Opening)
+         ================================================================= -->
+    <section id="slide-1" class="slide active" data-slide-index="1" aria-label="Welcome Ameera">
+      <canvas id="bokeh-canvas-slide1" class="slide-canvas" aria-hidden="true"></canvas>
+      <div class="slide-content romantic-center">
+        <div class="glow-orb orb-1" aria-hidden="true"></div>
+        <div class="glow-orb orb-2" aria-hidden="true"></div>
+
+        <div class="badge-pill">A Special Birthday Journey</div>
+        <h1 class="script-headline-large glow-text">Hey Ameera 💕</h1>
+        <p class="slide-lead">
+          Today, September 16 - a day to celebrate the warmest heart and the most beautiful soul.<br>
+          Someone who loves and cherishes you deeply has prepared a little journey, made only for you.<br>
+          Every step holds a piece of their heart, every moment a whisper of their love.<br>
+          So let this journey remind you just how deeply, truly, and endlessly you are cherished.
+        </p>
+
+        <!-- Interactive Gift Box -->
+        <div class="gift-box-wrapper" id="gift-box-trigger" role="button" tabindex="0" aria-label="Open your surprise gift box">
+          <div class="gift-box" id="gift-box-element">
+            <div class="gift-lid">
+              <div class="gift-bow">
+                <span class="bow-loop bow-left"></span>
+                <span class="bow-center"></span>
+                <span class="bow-loop bow-right"></span>
+                <span class="bow-ribbon ribbon-left"></span>
+                <span class="bow-ribbon ribbon-right"></span>
+              </div>
+              <div class="lid-strap"></div>
+            </div>
+            <div class="gift-body">
+              <div class="body-vertical-ribbon"></div>
+              <div class="body-horizontal-ribbon"></div>
+              <div class="sparkle-spark spark-1">💖</div>
+              <div class="sparkle-spark spark-2">💕</div>
+              <div class="sparkle-spark spark-3">💖</div>
+              <div class="sparkle-spark spark-4">✨</div>
+            </div>
+          </div>
+          <p class="gift-box-label" id="gift-box-label">
+            <span class="pulse-icon">🎁</span> Ready for the Surprise?
+            <span class="tap-hint">(Tap the gift box)</span>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================
+         SLIDE 2: Birthday Wish
+         ================================================================= -->
+    <section id="slide-2" class="slide" data-slide-index="2" aria-label="Happy Birthday Ameera">
+      <canvas id="fireworks-canvas" class="slide-canvas" aria-hidden="true"></canvas>
+      <div id="balloons-container-slide2" class="floating-balloons-layer" aria-hidden="true"></div>
+
+      <div class="slide-content romantic-center">
+        <div class="age-milestone-tag">September 16 • 20 Milestone</div>
+        <h1 class="script-headline-xl glow-text-gold">Happy Birthday!</h1>
+        <h2 class="script-subheadline">Dearest Ameera Hidhaya 💕</h2>
+
+        <div class="quote-card-glow">
+          <p class="birthday-tribute-quote">
+            "Your heart is made of quiet sunshine and pure kindness. May all your dreams come true. Live every moment with joy and happiness. May your days be filled with laughter, peace, and beautiful little moments.<br><br>
+            Keep shining with the same beautiful soul that makes you so special.<br><br>
+            And may you always be surrounded by love, joy, and happiness."
+          </p>
+          <div class="love-you-romantic-tag">I Love You 💕</div>
+        </div>
+
+        <!-- Hidden until strictly 8 seconds after slide entry -->
+        <div id="slide2-cake-btn-container" class="delayed-element-container">
+          <!-- Populated by JavaScript at exactly 8.0 seconds -->
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================
+         SLIDE 3: Cake Cutting
+         ================================================================= -->
+    <section id="slide-3" class="slide" data-slide-index="3" aria-label="Cut The Birthday Cake">
+      <!-- Floating heart balloons and small gifts background layer -->
+      <div id="slide3-floating-decorations" class="floating-decorations-layer" aria-hidden="true"></div>
+
+      <div class="slide-content romantic-center">
+        <div class="slide-header-text">
+          <span class="badge-pill">A Sweet Moment for You</span>
+          <h2 class="script-headline">Your Favourite Cake, For You Ameera 🎂</h2>
+        </div>
+
+        <!-- Three-Layer Birthday Cake Illustration -->
+        <div class="cake-stage" id="cake-stage">
+          <div class="birthday-cake three-layer-cake" id="birthday-cake">
+            
+            <!-- Candle & Flame on top layer -->
+            <div class="cake-candle" id="cake-candle">
+              <div class="candle-flame" id="candle-flame">
+                <span class="flame-inner"></span>
+              </div>
+              <div class="candle-smoke" id="candle-smoke"></div>
+              <div class="candle-stick"></div>
+            </div>
+
+            <!-- Top Layer Cherries & Strawberries -->
+            <div class="cake-cherries-row" aria-hidden="true">
+              <span class="cherry cherry-1">🍒</span>
+              <span class="cherry cherry-2">🍓</span>
+              <span class="cherry cherry-3">🍒</span>
+              <span class="cherry cherry-4">🍓</span>
+              <span class="cherry cherry-5">🍒</span>
+            </div>
+
+            <!-- Tier 1 (Top Layer) -->
+            <div class="cake-tier cake-tier-top" id="cake-tier-top">
+              <div class="chocolate-drips drips-top">
+                <span class="drip drip-1"></span>
+                <span class="drip drip-2"></span>
+                <span class="drip drip-3"></span>
+                <span class="drip drip-4"></span>
+              </div>
+              <div class="frosting-beads beads-top"></div>
+              <div class="cake-slice-cut" id="cake-slice-cut">
+                <div class="slice-cherry">🍒</div>
+                <div class="slice-inner"></div>
+              </div>
+            </div>
+
+            <!-- Tier 2 (Middle Layer) -->
+            <div class="cake-tier cake-tier-mid" id="cake-tier-mid">
+              <div class="cream-drips drips-mid">
+                <span class="drip-cream dc-1"></span>
+                <span class="drip-cream dc-2"></span>
+                <span class="drip-cream dc-3"></span>
+                <span class="drip-cream dc-4"></span>
+                <span class="drip-cream dc-5"></span>
+              </div>
+              <div class="frosting-beads beads-mid"></div>
+            </div>
+
+            <!-- Tier 3 (Bottom Layer) -->
+            <div class="cake-tier cake-tier-bottom" id="cake-tier-bottom">
+              <div class="chocolate-drips drips-bottom">
+                <span class="drip drip-b1"></span>
+                <span class="drip drip-b2"></span>
+                <span class="drip drip-b3"></span>
+                <span class="drip drip-b4"></span>
+                <span class="drip drip-b5"></span>
+                <span class="drip drip-b6"></span>
+              </div>
+              <div class="frosting-beads beads-bottom"></div>
+            </div>
+
+            <!-- Bottom Cake Stand / Plate -->
+            <div class="cake-plate"></div>
+          </div>
+
+          <!-- Knife Animation Graphic -->
+          <div class="cutting-knife" id="cutting-knife" aria-hidden="true">
+            <div class="knife-blade"></div>
+            <div class="knife-handle"></div>
+          </div>
+        </div>
+
+        <!-- Action Button: Blow the Candle (appears ONLY after 6s full-screen wish) -->
+        <div id="slide3-action-container" class="action-btn-container">
+          <!-- Rendered strictly after 6-second wish screen finishes -->
+        </div>
+
+        <div id="cake-status-message" class="cake-status-message" aria-live="polite"></div>
+      </div>
+
+      <!-- Full-Screen Black Background "Close your eyes and make a wish" Overlay (Appears for 6s) -->
+      <div id="fullscreen-wish-modal" class="fullscreen-wish-modal" aria-live="polite">
+        <div class="wish-modal-backdrop"></div>
+        <div class="wish-modal-content">
+          <div class="wish-modal-sparkle-top">✨ 🌙 ✨</div>
+          <h2 class="wish-modal-title">Close your eyes and make a wish...</h2>
+          <p class="wish-modal-sub">Think of your heart’s deepest, sweetest dream, Ameera 💕</p>
+          <div class="wish-modal-heart-icon">💖</div>
+          <div class="wish-modal-progress-bar">
+            <div id="wish-modal-progress-fill" class="wish-modal-progress-fill"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================
+         SLIDE 4: Six Reasons I Love You
+         ================================================================= -->
+    <section id="slide-4" class="slide" data-slide-index="4" aria-label="Six Reasons Why I Love You">
+      <div class="slide4-bg-wrapper" id="slide4-bg-wrapper">
+        <div class="slide4-dark-tint"></div>
+      </div>
+
+      <div class="slide-content reasons-layout">
+        <div class="reasons-header text-center">
+          <span class="badge-pill">Straight From My Heart</span>
+          <h2 class="script-headline-large glow-text">6 Reasons Why I Love You</h2>
+          <p class="reasons-subtext">Pop each balloon to unveil one reason at a time 💕</p>
+          <div class="reasons-counter-badge" id="reasons-counter-badge">0 of 6 Revealed</div>
+        </div>
+
+        <!-- Balloon Arena: 3 on left, 3 on right -->
+        <div class="balloons-arena" id="balloons-arena">
+          <!-- Left Column (Balloons 1, 2, 3) -->
+          <div class="balloons-column column-left" id="balloons-col-left"></div>
+
+          <!-- Center Active Reason Reveal Card -->
+          <div class="reason-center-card" id="reason-center-card">
+            <div class="reason-card-inner" id="reason-card-inner">
+              <div class="reason-heart-icon">💖</div>
+              <div class="reason-number" id="reason-card-number">Tap a balloon</div>
+              <p class="reason-quote-text" id="reason-card-text">
+                Every balloon holds a piece of my heart that belongs only to you, Ameera.
+              </p>
+            </div>
+          </div>
+
+          <!-- Right Column (Balloons 4, 5, 6) -->
+          <div class="balloons-column column-right" id="balloons-col-right"></div>
+        </div>
+
+        <div id="slide4-auto-advance-note" class="auto-advance-note"></div>
+      </div>
+    </section>
+
+    <!-- =================================================================
+         SLIDE 5: Photo Memory Gallery
+         ================================================================= -->
+    <section id="slide-5" class="slide" data-slide-index="5" aria-label="Photo Memory Gallery">
+      <!-- Dense rising heart shower canvas -->
+      <canvas id="dense-hearts-canvas" class="slide-canvas" aria-hidden="true"></canvas>
+
+      <div class="slide-content gallery-layout">
+        <div class="gallery-header text-center">
+          <span class="badge-pill">Cherished Moments</span>
+          <h2 class="script-headline glow-text">Memories of Grace & Joy</h2>
+          <p class="gallery-subtext">Tap anywhere to see the next memory, or let them unfold...</p>
+        </div>
+
+        <!-- Polaroid Photo Frame Display -->
+        <div class="polaroid-wrapper" id="polaroid-wrapper" role="button" tabindex="0" aria-label="Tap to view next photo memory">
+          <div class="polaroid-frame" id="polaroid-frame">
+            <div class="polaroid-photo-box">
+              <img id="gallery-photo-img" src="assets/images/photo1.jpg" alt="Memory of Ameera" class="gallery-photo-img">
+              <div class="photo-glow-border"></div>
+            </div>
+            <div class="polaroid-caption-area">
+              <p id="gallery-photo-quote" class="gallery-script-quote">
+                "These words written about you are not just poetry, but the truth of my heart. You deserve everything said here."
+              </p>
+              <div class="gallery-meta-row">
+                <span id="gallery-counter-tag" class="gallery-counter-tag">1 of 9</span>
+                <span class="gallery-sparkle-tag">Forever Ameera ✨</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 10-Second Auto-Advance Progress Ring/Bar -->
+          <div class="gallery-timer-bar-track">
+            <div id="gallery-timer-bar" class="gallery-timer-bar"></div>
+          </div>
+        </div>
+
+        <!-- Appears strictly after 9th photo has been shown -->
+        <div id="gallery-final-btn-container" class="delayed-element-container">
+          <!-- Populated by JS when photo 9 is reached -->
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================
+         SLIDE 6: The Love Letter (With 3D Romantic Envelope)
+         ================================================================= -->
+    <section id="slide-6" class="slide" data-slide-index="6" aria-label="The Love Letter">
+      <!-- Floating & drifting rose petals background canvas -->
+      <canvas id="slide6-petals-canvas" class="slide-canvas" aria-hidden="true"></canvas>
+
+      <div class="slide-content letter-layout">
+
+        <!-- 1. Romantic Closed Envelope View (Shown initially) -->
+        <div class="envelope-box-wrapper" id="envelope-box-wrapper">
+          <div class="envelope-badge-header">
+            <span class="badge-pill">A Letter Straight From My Heart</span>
+            <h2 class="script-headline-envelope">For You, Ameera 💕</h2>
+            <p class="envelope-hint-text">A handwritten surprise waiting to be unsealed...</p>
+          </div>
+
+          <div class="envelope-interactive" id="envelope-interactive" role="button" tabindex="0" aria-label="Tap to open the letter">
+            <svg class="envelope-svg-art" viewBox="0 0 340 230" preserveAspectRatio="xMidYMid meet">
+              <defs>
+                <linearGradient id="envGradBack" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#8b1538"/>
+                  <stop offset="100%" stop-color="#5a0920"/>
+                </linearGradient>
+                <linearGradient id="envGradFlap" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#a82348"/>
+                  <stop offset="100%" stop-color="#730e28"/>
+                </linearGradient>
+                <linearGradient id="envGradPocket" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#931a3d"/>
+                  <stop offset="100%" stop-color="#600b23"/>
+                </linearGradient>
+                <linearGradient id="parchmentPeek" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#fdf9f0"/>
+                  <stop offset="100%" stop-color="#f2e2c4"/>
+                </linearGradient>
+                <radialGradient id="waxSealGrad" cx="35%" cy="35%" r="65%">
+                  <stop offset="0%" stop-color="#ff3b68"/>
+                  <stop offset="70%" stop-color="#b01338"/>
+                  <stop offset="100%" stop-color="#5e051a"/>
+                </radialGradient>
+                <filter id="envShadow" x="-10%" y="-10%" width="120%" height="130%">
+                  <feDropShadow dx="0" dy="12" stdDeviation="15" flood-color="#000000" flood-opacity="0.6"/>
+                </filter>
+              </defs>
+
+              <!-- Envelope Base Shadow & Backing -->
+              <rect x="15" y="25" width="310" height="190" rx="14" fill="url(#envGradBack)" stroke="#d4af37" stroke-width="1.5" filter="url(#envShadow)"/>
+
+              <!-- Letter Peeking Inside -->
+              <g class="svg-letter-peek-group" id="svg-letter-peek-group">
+                <rect x="35" y="38" width="270" height="160" rx="8" fill="url(#parchmentPeek)" stroke="#d8c199" stroke-width="1"/>
+                <text x="55" y="70" font-family="'Caveat', cursive" font-size="22" font-weight="bold" fill="#8b1538">Dearest Ameera 💕</text>
+                <line x1="55" y1="88" x2="280" y2="88" stroke="#d4af37" stroke-width="2" stroke-dasharray="6,4" opacity="0.7"/>
+                <line x1="55" y1="108" x2="240" y2="108" stroke="#e0c7a0" stroke-width="2" opacity="0.6"/>
+                <line x1="55" y1="126" x2="200" y2="126" stroke="#e0c7a0" stroke-width="2" opacity="0.5"/>
+              </g>
+
+              <!-- Pocket Flaps (Left, Right, Bottom) -->
+              <path d="M 15 25 L 170 135 L 15 215 Z" fill="url(#envGradPocket)" opacity="0.95"/>
+              <path d="M 325 25 L 170 135 L 325 215 Z" fill="url(#envGradPocket)" opacity="0.95"/>
+              <path d="M 15 215 L 170 125 L 325 215 Z" fill="url(#envGradBack)"/>
+              <path d="M 15 215 L 170 125 L 325 215" stroke="#d4af37" stroke-width="1" fill="none" opacity="0.4"/>
+
+              <!-- Top Folding Flap -->
+              <g class="svg-flap-group" id="svg-flap-group">
+                <path d="M 15 25 L 170 138 L 325 25 Z" fill="url(#envGradFlap)" stroke="#d4af37" stroke-width="1" opacity="0.98"/>
+                
+                <!-- Wax Seal Stamp in center -->
+                <g class="svg-wax-seal" id="svg-wax-seal">
+                  <circle cx="170" cy="138" r="24" fill="url(#waxSealGrad)" stroke="#d4af37" stroke-width="2.5"/>
+                  <circle cx="170" cy="138" r="19" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+                  <text x="170" y="145" text-anchor="middle" font-size="20">💌</text>
+                </g>
+              </g>
+            </svg>
+          </div>
+
+          <!-- Open Button Below Envelope -->
+          <div class="envelope-btn-bar">
+            <button id="btn-open-envelope" class="romantic-btn envelope-open-btn" aria-label="Open the letter">
+              Open Letter 💌
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. Unfolded Rustic Parchment Letter View (Revealed after opening) -->
+        <div class="letter-scroll-wrapper hidden" id="letter-scroll-wrapper">
+          
+          <!-- Ornate Vintage Rustic Parchment -->
+          <article class="letter-parchment rustic-parchment" id="letter-parchment">
+            <!-- Scattered Rose Petals on Parchment -->
+            <div class="parchment-petal petal-1" aria-hidden="true">🌹</div>
+            <div class="parchment-petal petal-2" aria-hidden="true">🥀</div>
+            <div class="parchment-petal petal-3" aria-hidden="true">🌸</div>
+            <div class="parchment-petal petal-4" aria-hidden="true">🌹</div>
+
+            <!-- Decorative Rose Corner Accents -->
+            <div class="rose-corner corner-tl" aria-hidden="true">🌹</div>
+            <div class="rose-corner corner-tr" aria-hidden="true">🌹</div>
+            <div class="rose-corner corner-bl" aria-hidden="true">🌹</div>
+            <div class="rose-corner corner-br" aria-hidden="true">🌹</div>
+
+            <div class="letter-inner-border rustic-inner-border">
+              <header class="letter-header">
+                <div class="wax-seal-icon" aria-hidden="true">💌</div>
+                <h2 class="script-letter-title">Dearest Ameera 💕</h2>
+                <div class="letter-date">September 16 • Your 20th Birthday</div>
+              </header>
+
+              <div class="letter-body-content rustic-letter-font" id="letter-body-content">
+                <p class="letter-paragraph letter-lead-indent">
+                  Once again happy birthday!! I think i have made your 20th birthday a very special one.Edhalam unakaaga dha panna<br>
+                  Ena edhu oru 2 min paathurupiyaa indha 2 min unaku oru happiness kadachirukunu nabura adhuvea enaku podhu ameera enaku!!!
+                </p>
+                <p class="letter-paragraph">
+                  The first day i saw you in some exam hall exam mudichitu dha na unna patha on that time you pull my eyes…And aprm nee ena class nu kandu pudicha and ur name kandu pudichaa aprm i saw to 3 to 4 times in college and aprm time moves on…ne 2nd sem vandha aprm un insta id kandu pudicha aprm namma nalla peasa arambichom…namma oru 8 month peasirupom na unamaiya sollura na un kitta peasuna oru oru naalu na romba happy ahh irundhaa…
+                </p>
+                <p class="letter-paragraph">
+                  you gave me a special memories first time un kitta call la peasuna date kooda enaku neabagam irukuu(5/03/2026)na unaku two sum solli kuduthaa and sometimes na down ahh iruka modhuu en kitta peasuna and naanu ne edha problem iruka modhu or thaniya iruka modhu na irundhanu nanaikira and namma peasa peesa i liked you very much apidiyeaa love aagiruchii…nanachi paaru Allah nanaicha namma rendu pearu peasamalea vaichirukalam but i think and hope we ment to be together!!
+                </p>
+              </div>
+
+              <!-- Center Rose Bouquet & Signoff Section -->
+              <div class="letter-closing-section">
+                <div class="bouquet-center-wrapper">
+                  <div class="rose-bouquet-graphic" aria-hidden="true">
+                    <span class="bouquet-emoji">💐</span>
+                  </div>
+                  <p class="always-forever-text">always and forever will</p>
+                </div>
+
+                <div class="letter-signature-block">
+                  <p class="letter-signoff">With all my love,</p>
+                  <p class="letter-signature-script">Forever Yours 💕</p>
+                </div>
+              </div>
+
+              <!-- Bottom sentinel & Continue Button -->
+              <div id="letter-bottom-sentinel" class="letter-bottom-sentinel">
+                <button id="btn-letter-continue" class="romantic-btn continue-btn" aria-label="Continue to final screen">
+                  Continue to Closing 💕 →
+                </button>
+              </div>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================
+         SLIDE 7: Thank You (Closing)
+         ================================================================= -->
+    <section id="slide-7" class="slide" data-slide-index="7" aria-label="Thank You Ameera">
+      <canvas id="closing-canvas" class="slide-canvas" aria-hidden="true"></canvas>
+
+      <div class="slide-content romantic-center">
+        <div class="closing-heart-burst" aria-hidden="true">💖</div>
+        <h1 class="script-headline-xl glow-text-gold">Thank You 💕</h1>
+        
+        <div class="closing-card farewell-closing-card">
+          <p class="farewell-message-text">
+            If we never meet again..I hope you’ll be happy for the rest of your life..Thank you for everything…And my love remains same…No matter whrer life takes us..A part of mee will always hold on to you..maybe in other life we will a way back to each other untill then Take Care!!💗
+          </p>
+          <div class="closing-dedication">
+            <span class="gold-line"></span>
+            <span class="closing-names">Ameera Hidhaya • September 16</span>
+            <span class="gold-line"></span>
+          </div>
+        </div>
+
+        <div class="closing-footer-note">
+          Crafted with endless love, just for you.
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Data Files -->
+  <script src="assets/data/reasons.js"></script>
+  <script src="assets/data/quotes.js"></script>
+  <!-- Application Orchestration -->
+  <script src="app.js"></script>
+</body>
+</html>
