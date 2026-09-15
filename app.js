@@ -120,15 +120,39 @@
       toggleMusicMute();
     });
 
-    // Ensure audio loops continuously on all mobile devices & browsers (iOS Safari, Android, Vercel)
+    // Ensure audio loops continuously on ALL mobile devices & browsers (iOS Safari, Android Chrome, Vercel)
     [audioTrack1, audioTrack2].forEach((track) => {
       if (!track) return;
       track.loop = true;
+      track.playsInline = true;
+
+      // 1. Pre-loop rewind: reset currentTime to 0 BEFORE track reaches literal end
+      // This prevents mobile OS/WebKit from transitioning media element into 'ended/paused' state.
+      track.addEventListener('timeupdate', function () {
+        if (this.duration && this.duration > 2 && this.currentTime >= this.duration - 0.4) {
+          this.currentTime = 0;
+          if (this.paused && state.audioPlaying && !state.audioMuted) {
+            this.play().catch((e) => console.warn('Pre-loop play error:', e));
+          }
+        }
+      });
+
+      // 2. Ended fallback handler
       track.addEventListener('ended', function () {
         this.currentTime = 0;
-        const p = this.play();
-        if (p !== undefined) {
-          p.catch((e) => console.warn('Audio loop replay error:', e));
+        if (state.audioPlaying && !state.audioMuted) {
+          const p = this.play();
+          if (p !== undefined) {
+            p.catch((e) => console.warn('Ended loop play error:', e));
+          }
+        }
+      });
+
+      // 3. Unintended pause fallback handler
+      track.addEventListener('pause', function () {
+        if (state.audioPlaying && !state.audioMuted && this.duration && this.currentTime >= this.duration - 1) {
+          this.currentTime = 0;
+          this.play().catch(() => {});
         }
       });
     });
@@ -138,44 +162,40 @@
     musicControlContainer.classList.remove('hidden');
     state.activeAudioTrack = 'track1';
     state.audioPlaying = true;
+    state.audioMuted = false;
     updateMusicUI(true);
+
+    if (!audioTrack1) return;
 
     audioTrack1.volume = 0.85;
     audioTrack1.loop = true; // Remo Happy Birthday BGM loops continuously
-    audioTrack1.load();
+    audioTrack1.muted = false;
 
-    const playPromise = audioTrack1.play();
-    if (playPromise !== undefined) {
-      playPromise.catch((error) => {
-        console.warn('Track 1 autoplay blocked or file loading:', error);
-        playSynthChime(523.25, 1.2);
-      });
+    // Do NOT call audioTrack1.load() as it resets loop/WebKit state on mobile
+    if (audioTrack1.paused) {
+      const playPromise = audioTrack1.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((error) => {
+          console.warn('Track 1 autoplay blocked or file loading:', error);
+          playSynthChime(523.25, 1.2);
+        });
+      }
     }
   }
 
   function switchMusicToTrack2() {
-    // On cake cut, transition seamlessly to the 0:40 birthday celebration climax
-    try {
-      if (audioTrack1 && !audioTrack1.paused) {
-        if (audioTrack1.duration && audioTrack1.duration > 42) {
-          audioTrack1.currentTime = CONFIG.TRACK_2_START_TIME_SEC;
-        }
-        return;
-      }
-    } catch (e) {}
-
-    // Fallback if track1 was paused or not yet started
     state.activeAudioTrack = 'track1';
+    state.audioPlaying = true;
+
+    if (!audioTrack1) return;
     audioTrack1.loop = true;
     audioTrack1.volume = 0.85;
-    try {
-      if (audioTrack1.duration && audioTrack1.duration > 42) {
-        audioTrack1.currentTime = CONFIG.TRACK_2_START_TIME_SEC;
+
+    if (audioTrack1.paused) {
+      const p = audioTrack1.play();
+      if (p !== undefined) {
+        p.catch(err => console.warn('Remo BGM play error:', err));
       }
-    } catch (e) {}
-    const p = audioTrack1.play();
-    if (p !== undefined) {
-      p.catch(err => console.warn('Remo BGM play error:', err));
     }
 
     updateMusicUI(true);
