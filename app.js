@@ -113,46 +113,49 @@
   }
 
   // =========================================================================
-  // AUDIO CONTROLLER (Track 1, Track 2, Clap, Mute Toggle)
+  // AUDIO CONTROLLER (Web Audio API Hardware Loop + HTML5 Robust Fallback)
   // =========================================================================
+  let webAudioCtx = null;
+  let webAudioSource = null;
+  let webAudioGain = null;
+  let webAudioDecodedBuffer = null;
+  let isWebAudioActive = false;
+
+  // Pre-fetch the BGM audio file as ArrayBuffer right when page loads
+  let cachedAudioArrayBuffer = null;
+  try {
+    fetch('assets/audio/remo_birthday_bgm.m4a')
+      .then(resp => {
+        if (resp.ok) return resp.arrayBuffer();
+        throw new Error('Fetch failed');
+      })
+      .then(buffer => {
+        cachedAudioArrayBuffer = buffer;
+      })
+      .catch(e => {
+        console.warn('Audio prefetch notice:', e);
+      });
+  } catch (e) {}
+
   function initAudioControls() {
     musicToggleBtn.addEventListener('click', () => {
       toggleMusicMute();
     });
 
-    // Ensure audio loops continuously on ALL mobile devices & browsers (iOS Safari, Android Chrome, Vercel)
+    // Configure HTML5 audio elements
     [audioTrack1, audioTrack2].forEach((track) => {
       if (!track) return;
       track.loop = true;
       track.playsInline = true;
 
-      // 1. Pre-loop rewind: reset currentTime to 0 BEFORE track reaches literal end
-      // This prevents mobile OS/WebKit from transitioning media element into 'ended/paused' state.
-      track.addEventListener('timeupdate', function () {
-        if (this.duration && this.duration > 2 && this.currentTime >= this.duration - 0.4) {
-          this.currentTime = 0;
-          if (this.paused && state.audioPlaying && !state.audioMuted) {
-            this.play().catch((e) => console.warn('Pre-loop play error:', e));
-          }
-        }
-      });
-
-      // 2. Ended fallback handler
+      // When the native HTML5 audio ends (if Web Audio is not used), loop back
       track.addEventListener('ended', function () {
         this.currentTime = 0;
-        if (state.audioPlaying && !state.audioMuted) {
+        if (state.audioPlaying && !state.audioMuted && !isWebAudioActive) {
           const p = this.play();
           if (p !== undefined) {
-            p.catch((e) => console.warn('Ended loop play error:', e));
+            p.catch(err => console.warn('Loop play error:', err));
           }
-        }
-      });
-
-      // 3. Unintended pause fallback handler
-      track.addEventListener('pause', function () {
-        if (state.audioPlaying && !state.audioMuted && this.duration && this.currentTime >= this.duration - 1) {
-          this.currentTime = 0;
-          this.play().catch(() => {});
         }
       });
     });
@@ -165,39 +168,91 @@
     state.audioMuted = false;
     updateMusicUI(true);
 
-    if (!audioTrack1) return;
-
-    audioTrack1.volume = 0.85;
-    audioTrack1.loop = true; // Remo Happy Birthday BGM loops continuously
-    audioTrack1.muted = false;
-
-    // Do NOT call audioTrack1.load() as it resets loop/WebKit state on mobile
-    if (audioTrack1.paused) {
+    // 1. Immediately start HTML5 audio so user hears music instantly with 0ms lag
+    if (audioTrack1) {
+      audioTrack1.volume = 0.85;
+      audioTrack1.loop = true;
+      audioTrack1.muted = false;
       const playPromise = audioTrack1.play();
       if (playPromise !== undefined) {
-        playPromise.catch((error) => {
-          console.warn('Track 1 autoplay blocked or file loading:', error);
-          playSynthChime(523.25, 1.2);
+        playPromise.catch((err) => {
+          console.warn('HTML5 audio play notice:', err);
         });
       }
+    }
+
+    // 2. Initialize Web Audio API hardware looping
+    // Web Audio API buffer looping NEVER stops on mobile phones (iOS & Android)
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (AudioContext) {
+        if (!webAudioCtx) {
+          webAudioCtx = new AudioContext();
+        }
+        if (webAudioCtx.state === 'suspended') {
+          webAudioCtx.resume();
+        }
+
+        const decodeAndStart = (arrayBuffer) => {
+          webAudioCtx.decodeAudioData(arrayBuffer.slice(0), (decoded) => {
+            webAudioDecodedBuffer = decoded;
+            startWebAudioLoop();
+          }, (decodeErr) => {
+            console.warn('Web Audio decode fallback to HTML5:', decodeErr);
+          });
+        };
+
+        if (cachedAudioArrayBuffer) {
+          decodeAndStart(cachedAudioArrayBuffer);
+        } else {
+          fetch('assets/audio/remo_birthday_bgm.m4a')
+            .then(r => r.arrayBuffer())
+            .then(ab => decodeAndStart(ab))
+            .catch(() => {});
+        }
+      }
+    } catch (e) {
+      console.warn('Web Audio init error:', e);
+    }
+  }
+
+  function startWebAudioLoop() {
+    if (!webAudioCtx || !webAudioDecodedBuffer) return;
+    try {
+      if (isWebAudioActive) return;
+
+      if (!webAudioGain) {
+        webAudioGain = webAudioCtx.createGain();
+        webAudioGain.connect(webAudioCtx.destination);
+      }
+      webAudioGain.gain.setValueAtTime(state.audioMuted ? 0 : 0.85, webAudioCtx.currentTime);
+
+      if (webAudioSource) {
+        try { webAudioSource.stop(); } catch (e) {}
+      }
+
+      webAudioSource = webAudioCtx.createBufferSource();
+      webAudioSource.buffer = webAudioDecodedBuffer;
+      webAudioSource.loop = true; // HARDWARE LEVEL INFINITE LOOP - CANNOT STOP ON MOBILE
+      webAudioSource.connect(webAudioGain);
+
+      webAudioSource.start(0);
+      isWebAudioActive = true;
+
+      // Seamlessly switch: stop HTML5 audio now that Web Audio has taken over
+      if (audioTrack1) {
+        audioTrack1.pause();
+        audioTrack1.currentTime = 0;
+      }
+    } catch (err) {
+      console.warn('startWebAudioLoop error:', err);
     }
   }
 
   function switchMusicToTrack2() {
     state.activeAudioTrack = 'track1';
     state.audioPlaying = true;
-
-    if (!audioTrack1) return;
-    audioTrack1.loop = true;
-    audioTrack1.volume = 0.85;
-
-    if (audioTrack1.paused) {
-      const p = audioTrack1.play();
-      if (p !== undefined) {
-        p.catch(err => console.warn('Remo BGM play error:', err));
-      }
-    }
-
+    ensureMusicLooping();
     updateMusicUI(true);
   }
 
@@ -223,11 +278,31 @@
 
   function toggleMusicMute() {
     state.audioMuted = !state.audioMuted;
+
+    // Control Web Audio gain
+    if (webAudioGain && webAudioCtx) {
+      webAudioGain.gain.setValueAtTime(state.audioMuted ? 0 : 0.85, webAudioCtx.currentTime);
+    }
+
+    // Control HTML5 audio elements
     if (audioTrack1) audioTrack1.muted = state.audioMuted;
     if (audioTrack2) audioTrack2.muted = state.audioMuted;
 
     updateMusicUI(!state.audioMuted);
   }
+
+  function ensureMusicLooping() {
+    if (!state.audioPlaying || state.audioMuted) return;
+
+    if (webAudioCtx && webAudioCtx.state === 'suspended') {
+      webAudioCtx.resume();
+    }
+
+    if (!isWebAudioActive && audioTrack1 && audioTrack1.paused) {
+      audioTrack1.play().catch(() => {});
+    }
+  }
+
 
   function updateMusicUI(isPlaying) {
     if (state.audioMuted) {
@@ -248,6 +323,8 @@
   function goToSlide(targetSlideNumber) {
     if (state.isTransitioning || targetSlideNumber === state.currentSlide) return;
     if (targetSlideNumber < 1 || targetSlideNumber > 7) return;
+
+    ensureMusicLooping();
 
     state.isTransitioning = true;
     const currentSlideEl = document.getElementById(`slide-${state.currentSlide}`);
