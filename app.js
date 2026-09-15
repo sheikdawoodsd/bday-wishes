@@ -137,28 +137,68 @@
       });
   } catch (e) {}
 
+  function stopAllAudio() {
+    if (webAudioSource) {
+      try {
+        webAudioSource.stop();
+        webAudioSource.disconnect();
+      } catch (e) {}
+      webAudioSource = null;
+    }
+    isWebAudioActive = false;
+
+    if (audioTrack1) {
+      audioTrack1.pause();
+      audioTrack1.currentTime = 0;
+    }
+    if (audioTrack2) {
+      audioTrack2.pause();
+      audioTrack2.currentTime = 0;
+    }
+    if (audioClap) {
+      audioClap.pause();
+      audioClap.currentTime = 0;
+    }
+  }
+
   function initAudioControls() {
     musicToggleBtn.addEventListener('click', () => {
       toggleMusicMute();
     });
 
-    // Configure HTML5 audio elements
-    [audioTrack1, audioTrack2].forEach((track) => {
-      if (!track) return;
-      track.loop = true;
-      track.playsInline = true;
-
-      // When the native HTML5 audio ends (if Web Audio is not used), loop back
-      track.addEventListener('ended', function () {
-        this.currentTime = 0;
-        if (state.audioPlaying && !state.audioMuted && !isWebAudioActive) {
-          const p = this.play();
-          if (p !== undefined) {
-            p.catch(err => console.warn('Loop play error:', err));
+    // Sequential non-overlapping audio: Audio 1 finishes -> Audio 2 starts -> loops back
+    if (audioTrack1) {
+      audioTrack1.playsInline = true;
+      audioTrack1.addEventListener('ended', function onTrack1Ended() {
+        if (!isWebAudioActive && state.audioPlaying && !state.audioMuted) {
+          this.pause();
+          this.currentTime = 0;
+          if (audioTrack2 && audioTrack2.src && audioTrack2.src !== audioTrack1.src) {
+            state.activeAudioTrack = 'track2';
+            audioTrack2.currentTime = 0;
+            audioTrack2.play().catch(err => console.warn('Track 2 play error:', err));
+          } else {
+            this.currentTime = 0;
+            this.play().catch(err => console.warn('Track 1 replay error:', err));
           }
         }
       });
-    });
+    }
+
+    if (audioTrack2) {
+      audioTrack2.playsInline = true;
+      audioTrack2.addEventListener('ended', function onTrack2Ended() {
+        if (!isWebAudioActive && state.audioPlaying && !state.audioMuted) {
+          this.pause();
+          this.currentTime = 0;
+          if (audioTrack1) {
+            state.activeAudioTrack = 'track1';
+            audioTrack1.currentTime = 0;
+            audioTrack1.play().catch(err => console.warn('Track 1 loop error:', err));
+          }
+        }
+      });
+    }
   }
 
   function startBackgroundMusicTrack1() {
@@ -168,10 +208,13 @@
     state.audioMuted = false;
     updateMusicUI(true);
 
-    // 1. Immediately start HTML5 audio so user hears music instantly with 0ms lag
+    // Stop and reset any previous audio before starting
+    stopAllAudio();
+    state.audioPlaying = true;
+
+    // 1. Start HTML5 audio immediately so user hears music instantly with 0ms lag
     if (audioTrack1) {
       audioTrack1.volume = 0.85;
-      audioTrack1.loop = true;
       audioTrack1.muted = false;
       const playPromise = audioTrack1.play();
       if (playPromise !== undefined) {
@@ -182,7 +225,6 @@
     }
 
     // 2. Initialize Web Audio API hardware looping
-    // Web Audio API buffer looping NEVER stops on mobile phones (iOS & Android)
     try {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       if (AudioContext) {
@@ -250,15 +292,20 @@
   }
 
   function switchMusicToTrack2() {
-    state.activeAudioTrack = 'track1';
+    stopAllAudio();
+    state.activeAudioTrack = 'track2';
     state.audioPlaying = true;
-    ensureMusicLooping();
+    if (audioTrack2) {
+      audioTrack2.currentTime = 0;
+      audioTrack2.play().catch(e => console.warn('Track 2 play error:', e));
+    }
     updateMusicUI(true);
   }
 
   function playClapSound() {
     try {
       if (audioClap) {
+        audioClap.pause();
         audioClap.currentTime = 0;
         audioClap.volume = 0.9;
         const p = audioClap.play();
@@ -755,16 +802,15 @@
           origin: { y: 0.6 }
         });
 
-        // 4. Play clap sound effect safely
+        // 4. Play clap sound effect safely (ensure previous instance stopped)
+        if (audioClap) {
+          audioClap.pause();
+          audioClap.currentTime = 0;
+        }
         playClapSound();
 
-        // 5. DO NOT RESET OR SWITCH SONG! The user requested:
-        // "after pressing that the song haves been reset soo slove that problem also the song must continue"
-        // The background music continues playing seamlessly without interruption!
-        if (audioTrack1 && audioTrack1.paused && !state.audioMuted) {
-          audioTrack1.play().catch(() => {});
-        }
-        state.audioPlaying = true;
+        // 5. DO NOT start a second audio instance! Keep existing audio playing smoothly without overlap.
+        ensureMusicLooping();
         updateMusicUI(true);
 
         // 6. Celebration status
