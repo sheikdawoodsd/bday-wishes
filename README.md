@@ -1,10 +1,10 @@
 # bday-wishes
 
-A special interactive birthday surprise website created for Ameera's 20th Birthday! ✨🎈🎁
+A special interactive birthday surprise website created for Ameera's 20th Birthday!
 
-## 🌐 Live URLs
-- **Vercel Production:** [bday-wishes-vxiu.vercel.app](https://bday-wishes-vxiu.vercel.app)
-- **GitHub Pages:** [sheikdawoodsd.github.io/bday-wishes](https://sheikdawoodsd.github.io/bday-wishes/)
+## Live URLs
+- **Vercel Production:** https://bday-wishes-vxiu.vercel.app
+- **GitHub Pages:** https://sheikdawoodsd.github.io/bday-wishes/
 
 ## Features
 - **Envelope & Letter Animation:** Interactive 3D romantic letter with smooth unfolding.
