@@ -119,6 +119,19 @@
     musicToggleBtn.addEventListener('click', () => {
       toggleMusicMute();
     });
+
+    // Ensure audio loops continuously on all mobile devices & browsers (iOS Safari, Android, Vercel)
+    [audioTrack1, audioTrack2].forEach((track) => {
+      if (!track) return;
+      track.loop = true;
+      track.addEventListener('ended', function () {
+        this.currentTime = 0;
+        const p = this.play();
+        if (p !== undefined) {
+          p.catch((e) => console.warn('Audio loop replay error:', e));
+        }
+      });
+    });
   }
 
   function startBackgroundMusicTrack1() {
